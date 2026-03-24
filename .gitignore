@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+config/agent.local.yaml
 env/
 venv/
 ENV/

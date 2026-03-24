@@ -1,0 +1,12 @@
+app:
+  default_user_prompt: "Say hello from LangGraph using Amazon Bedrock."
+
+bedrock:
+  # Direct model ID for Bedrock. If you prefer a US inference profile, you can
+  # switch this to `us.meta.llama4-maverick-17b-instruct-v1:0`.
+  model_id: "us.meta.llama4-maverick-17b-instruct-v1:0"
+  region: "us-east-1"
+  system_prompt: "You are a concise assistant in a LangGraph hello world demo."
+  temperature: 0.2
+  top_p: 0.9
+  max_tokens: 256
