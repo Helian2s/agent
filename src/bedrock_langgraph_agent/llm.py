@@ -12,6 +12,9 @@ class TextGenerator(Protocol):
     def generate(self, *, system_prompt: str, user_prompt: str) -> str:
         """Return plain text output for the supplied prompts."""
 
+    def get_trace_metadata(self) -> dict[str, str]:
+        """Return metadata that should be attached to trace logs."""
+
 
 class BedrockConverseTextGenerator:
     def __init__(self, settings: AppSettings):
@@ -47,6 +50,12 @@ class BedrockConverseTextGenerator:
             ) from exc
 
         return extract_text(response)
+
+    def get_trace_metadata(self) -> dict[str, str]:
+        return {
+            "provider": "bedrock",
+            "modelId": self._settings.bedrock.model_id,
+        }
 
 
 def extract_text(response: dict[str, Any]) -> str:

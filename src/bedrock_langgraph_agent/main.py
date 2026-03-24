@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
+import sys
 
 from .config import load_settings
 from .graph import build_graph
 from .llm import BedrockConverseTextGenerator
-from .page_object_tracing import serialize_trace_value
+from .page_object_tracing import (
+    resolve_trace_log_path,
+    serialize_trace_value,
+    write_trace_log,
+)
 from .page_object_workflow import build_page_object_graph
 
 
@@ -54,15 +58,17 @@ def main() -> None:
             }
         )
         trace_events = serialize_trace_value(result.get("trace_events", []))
-
-        if args.trace_output:
-            trace_path = Path(args.trace_output)
-            trace_path.parent.mkdir(parents=True, exist_ok=True)
-            trace_path.write_text(json.dumps(trace_events, indent=2), encoding="utf-8")
+        trace_path = resolve_trace_log_path(
+            html_path=args.html_input,
+            trace_output=args.trace_output,
+            run_status=str(result.get("run_status", "unknown")),
+        )
+        write_trace_log(trace_events, trace_path)
 
         if result.get("run_status") == "failed":
             raise RuntimeError(
-                str(result.get("failure_message", "Page object generation failed."))
+                f"{result.get('failure_message', 'Page object generation failed.')}\n"
+                f"Trace log: {trace_path}"
             )
 
         page_object_code = result["final_page_object"]
@@ -72,10 +78,9 @@ def main() -> None:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_text(page_object_code, encoding="utf-8")
             print(f"Wrote verified page object to {output_path}")
-            if args.trace_output:
-                print(f"Wrote workflow trace to {args.trace_output}")
         else:
             print(page_object_code)
+        print(f"Wrote workflow trace to {trace_path}", file=sys.stderr)
         return
 
     graph = build_graph(settings)

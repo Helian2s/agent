@@ -10,7 +10,13 @@ from .page_object_policy import (
 )
 from .page_object_prompts import PAGE_OBJECT_SYSTEM_PROMPT, build_generation_prompt
 from .page_object_state import PageObjectState
-from .page_object_tracing import append_trace_event, snapshot_state
+from .page_object_tracing import (
+    append_trace_event,
+    duration_ms,
+    monotonic_seconds,
+    snapshot_state,
+    utc_now_iso,
+)
 from .page_object_verifier import render_verification_feedback, verify_page_object
 
 
@@ -18,7 +24,10 @@ def build_page_object_nodes(
     text_generator: TextGenerator,
     policy: PageObjectGenerationPolicy = DEFAULT_PAGE_OBJECT_POLICY,
 ) -> dict[str, object]:
+    llm_trace_metadata = _get_llm_trace_metadata(text_generator)
+
     def plan_page_object(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         html_path = Path(state["html_path"]).expanduser().resolve()
         html_source = html_path.read_text(encoding="utf-8")
@@ -47,6 +56,7 @@ def build_page_object_nodes(
             details={
                 "html_path": str(html_path),
                 "html_length": len(html_source),
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
             },
         )
         return {
@@ -55,16 +65,21 @@ def build_page_object_nodes(
         }
 
     def generate_page_object(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         user_prompt = build_generation_prompt(
             page_spec=state["page_spec"],
             verifier_feedback=state.get("verification_feedback", ""),
             policy=policy,
         )
+        llm_started_at = utc_now_iso()
+        llm_wait_started = monotonic_seconds()
         generated_text = text_generator.generate(
             system_prompt=PAGE_OBJECT_SYSTEM_PROMPT,
             user_prompt=user_prompt,
         )
+        llm_wait_finished = monotonic_seconds()
+        llm_finished_at = utc_now_iso()
         generated_code = extract_python_code(generated_text)
         output_update = {
             "generated_code": generated_code,
@@ -86,6 +101,10 @@ def build_page_object_nodes(
             input_state=input_state,
             output_update=output_update,
             details={
+                **llm_trace_metadata,
+                "llm_started_at": llm_started_at,
+                "llm_finished_at": llm_finished_at,
+                "llm_wait_ms": duration_ms(llm_wait_started, llm_wait_finished),
                 "system_prompt": PAGE_OBJECT_SYSTEM_PROMPT,
                 "user_prompt": user_prompt,
                 "raw_response_text": generated_text,
@@ -98,6 +117,9 @@ def build_page_object_nodes(
             node="generate_page_object",
             input_state=input_state,
             output_update=output_update,
+            details={
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
+            },
         )
         return {
             **output_update,
@@ -105,6 +127,7 @@ def build_page_object_nodes(
         }
 
     def verify_generated_page_object(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         result = verify_page_object(state["generated_code"], state["page_spec"])
         feedback = render_verification_feedback(result)
@@ -136,6 +159,7 @@ def build_page_object_nodes(
             details={
                 "verification_passed": result.is_valid,
                 "verification_errors": result.errors,
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
             },
         )
         return {
@@ -144,6 +168,7 @@ def build_page_object_nodes(
         }
 
     def choose_next_step(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         if state.get("verification_passed"):
             next_node = "complete_page_object"
@@ -180,6 +205,9 @@ def build_page_object_nodes(
             node="choose_next_step",
             input_state=input_state,
             output_update=output_update,
+            details={
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
+            },
         )
         return {
             **output_update,
@@ -187,6 +215,7 @@ def build_page_object_nodes(
         }
 
     def complete_page_object(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         output_update = {"run_status": "succeeded"}
         trace_events = append_trace_event(
@@ -203,6 +232,7 @@ def build_page_object_nodes(
             output_update=output_update,
             details={
                 "final_page_object_length": len(state.get("final_page_object", "")),
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
             },
         )
         return {
@@ -211,6 +241,7 @@ def build_page_object_nodes(
         }
 
     def fail_generation(state: PageObjectState) -> PageObjectState:
+        node_started = monotonic_seconds()
         input_state = snapshot_state(state)
         failure_message = (
             "Page object verification failed after "
@@ -232,7 +263,10 @@ def build_page_object_nodes(
             node="fail_generation",
             input_state=input_state,
             output_update=output_update,
-            details={"failure_message": failure_message},
+            details={
+                "failure_message": failure_message,
+                "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
+            },
         )
         return {
             **output_update,
@@ -259,3 +293,12 @@ def extract_python_code(text: str) -> str:
             lines = lines[:-1]
         return "\n".join(lines).strip()
     return stripped
+
+
+def _get_llm_trace_metadata(text_generator: TextGenerator) -> dict[str, str]:
+    get_trace_metadata = getattr(text_generator, "get_trace_metadata", None)
+    if callable(get_trace_metadata):
+        metadata = get_trace_metadata()
+        if isinstance(metadata, dict):
+            return {str(key): str(value) for key, value in metadata.items()}
+    return {}

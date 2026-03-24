@@ -84,6 +84,12 @@ class StubTextGenerator:
             raise AssertionError("No stubbed responses left for the text generator.")
         return self._responses.pop(0)
 
+    def get_trace_metadata(self) -> dict[str, str]:
+        return {
+            "provider": "bedrock",
+            "modelId": "stub.model",
+        }
+
 
 class PageObjectWorkflowTests(unittest.TestCase):
     def test_build_page_spec_from_example(self) -> None:
@@ -136,6 +142,20 @@ class PageObjectWorkflowTests(unittest.TestCase):
         self.assertIn("llm_call", trace_event_types)
         self.assertIn("transition", trace_event_types)
         self.assertEqual(result["run_status"], "succeeded")
+        llm_events = [
+            event for event in result["trace_events"] if event["event_type"] == "llm_call"
+        ]
+        self.assertEqual(llm_events[0]["details"]["provider"], "bedrock")
+        self.assertEqual(llm_events[0]["details"]["modelId"], "stub.model")
+        self.assertIn("llm_wait_ms", llm_events[0]["details"])
+        self.assertIn("llm_started_at", llm_events[0]["details"])
+        self.assertIn("llm_finished_at", llm_events[0]["details"])
+        node_exit_events = [
+            event for event in result["trace_events"] if event["event_type"] == "node_exit"
+        ]
+        self.assertTrue(
+            all("node_duration_ms" in event["details"] for event in node_exit_events)
+        )
 
     def test_workflow_records_failure_trace_when_attempts_are_exhausted(self) -> None:
         text_generator = StubTextGenerator(responses=[INVALID_PAGE_OBJECT])

@@ -52,12 +52,13 @@ Example:
 python -m bedrock_langgraph_agent.main \
   --html-input examples/checkout_form.html \
   --page-object-output output/checkout_form_page.py \
-  --trace-output output/checkout_form_trace.json \
   --max-attempts 3
 ```
 
 If you omit `--page-object-output`, the verified page object is printed to stdout.
-If you pass `--trace-output`, the workflow writes a detailed JSON trace with every node entry, node exit, LLM call, and graph transition.
+The workflow always writes a detailed JSON trace with every node entry, node exit, LLM call, and graph transition.
+By default, traces are stored under `logs/page_object_traces/`.
+If you pass `--trace-output`, that path overrides the default trace location.
 
 ## Test
 
