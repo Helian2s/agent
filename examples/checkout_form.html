@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Checkout Example</title>
+  </head>
+  <body>
+    <main>
+      <h1>Checkout</h1>
+      <form id="checkout-form" data-testid="checkout-form">
+        <div>
+          <label for="first-name">First Name</label>
+          <input
+            id="first-name"
+            name="first_name"
+            type="text"
+            data-testid="first-name-input"
+          />
+        </div>
+
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" />
+        </div>
+
+        <div>
+          <label for="country">Country</label>
+          <select id="country" name="country" data-testid="country-select">
+            <option value="">Select a country</option>
+            <option value="us">United States</option>
+            <option value="ca">Canada</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="notes">Delivery Notes</label>
+          <textarea id="notes" name="notes" aria-label="Delivery notes"></textarea>
+        </div>
+
+        <div>
+          <input id="terms" name="terms" type="checkbox" />
+          <label for="terms">I accept the terms</label>
+        </div>
+
+        <div>
+          <button type="submit" data-testid="submit-order">Place Order</button>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>
