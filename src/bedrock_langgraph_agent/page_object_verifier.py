@@ -81,6 +81,17 @@ def verify_page_object(code: str, page_spec: PageSpec) -> VerificationResult:
     return VerificationResult(is_valid=not errors, errors=errors)
 
 
+def collect_page_object_locators(
+    code: str,
+    class_name: str,
+) -> dict[str, tuple[str, str]]:
+    tree = ast.parse(code)
+    class_node = _find_class(tree, class_name)
+    if class_node is None:
+        raise ValueError(f"Expected a class named {class_name}, but it was not found.")
+    return _collect_locator_assignments(class_node)
+
+
 def render_verification_feedback(result: VerificationResult) -> str:
     if result.is_valid:
         return "Verifier accepted the page object."

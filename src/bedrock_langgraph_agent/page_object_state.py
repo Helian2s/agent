@@ -8,6 +8,7 @@ from .page_object_tracing import TraceEvent
 
 class PageObjectState(TypedDict, total=False):
     html_path: str
+    page_object_name_hint: str
     max_attempts: int
     page_spec: PageSpec
     attempt_count: int

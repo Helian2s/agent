@@ -31,12 +31,18 @@ def build_page_object_nodes(
         input_state = snapshot_state(state)
         html_path = Path(state["html_path"]).expanduser().resolve()
         html_source = html_path.read_text(encoding="utf-8")
-        page_spec = build_page_spec(html_source, html_path, policy)
+        page_object_name_hint = str(state.get("page_object_name_hint", "")).strip() or None
+        page_spec = build_page_spec(
+            html_source,
+            html_path,
+            policy,
+            class_name_source=page_object_name_hint,
+        )
         output_update = {
             "page_spec": page_spec,
             "attempt_count": 0,
             "max_attempts": int(state.get("max_attempts", policy.max_attempts)),
-            "verification_feedback": "",
+            "verification_feedback": str(state.get("verification_feedback", "")),
             "verification_errors": [],
             "run_status": "running",
         }
@@ -56,6 +62,7 @@ def build_page_object_nodes(
             details={
                 "html_path": str(html_path),
                 "html_length": len(html_source),
+                "page_object_name_hint": page_object_name_hint,
                 "node_duration_ms": duration_ms(node_started, monotonic_seconds()),
             },
         )

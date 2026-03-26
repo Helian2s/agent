@@ -141,6 +141,7 @@ celerybeat.pid
 config/agent.local.yaml
 logs/
 output/
+tmp/
 env/
 venv/
 ENV/

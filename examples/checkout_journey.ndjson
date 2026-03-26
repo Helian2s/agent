@@ -1,0 +1,7 @@
+{"timestamp":"2026-03-25T15:00:00Z","url":"https://shop.example.test/","event_name":"page_view","navigation_source":"direct","auth_required":false}
+{"timestamp":"2026-03-25T15:00:08Z","url":"https://shop.example.test/","event_name":"click","click_target":"Start checkout"}
+{"timestamp":"2026-03-25T15:00:12Z","url":"https://shop.example.test/checkout","event_name":"page_view","navigation_source":"https://shop.example.test/"}
+{"timestamp":"2026-03-25T15:00:18Z","url":"https://shop.example.test/checkout","event_name":"text_input","click_target":"First name","text_input":"Val"}
+{"timestamp":"2026-03-25T15:00:21Z","url":"https://shop.example.test/checkout","event_name":"text_input","click_target":"Email","text_input":"val@example.test"}
+{"timestamp":"2026-03-25T15:00:27Z","url":"https://shop.example.test/checkout","event_name":"scroll","scroll_depth":100}
+{"timestamp":"2026-03-25T15:00:31Z","url":"https://shop.example.test/checkout","event_name":"click","click_target":"Place order"}

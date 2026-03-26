@@ -160,11 +160,16 @@ def build_page_spec(
     html_source: str,
     source_path: Path,
     policy: PageObjectGenerationPolicy = DEFAULT_PAGE_OBJECT_POLICY,
+    *,
+    class_name_source: str | None = None,
 ) -> PageSpec:
     parser = _InteractiveHtmlParser()
     parser.feed(html_source)
 
-    class_name = _build_class_name(source_path.stem, policy.class_suffix)
+    class_name = _build_class_name(
+        class_name_source or source_path.stem,
+        policy.class_suffix,
+    )
     page_title = parser.title_text or parser.heading_text or class_name.removesuffix(policy.class_suffix)
 
     elements: list[ElementSpec] = []
