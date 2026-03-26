@@ -6,9 +6,9 @@ import json
 import tempfile
 import unittest
 
-from bedrock_langgraph_agent.journey_workflow import build_journey_planning_graph
-from bedrock_langgraph_agent.page_capture_models import ActionableElement
-from bedrock_langgraph_agent.page_capture_workflow import build_page_capture_graph
+from bedrock_langgraph_agent.journey_planning.workflow import build_journey_planning_graph
+from bedrock_langgraph_agent.page_capture.models import ActionableElement
+from bedrock_langgraph_agent.page_capture.workflow import build_page_capture_graph
 
 
 class StubBrowserSession:

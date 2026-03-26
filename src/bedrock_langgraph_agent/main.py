@@ -6,19 +6,19 @@ import sys
 
 from .config import load_settings
 from .graph import build_graph
-from .journey_workflow import build_journey_planning_graph
-from .llm import BedrockConverseTextGenerator
-from .page_capture_workflow import build_page_capture_graph
-from .page_object_factory_workflow import build_page_object_factory_graph
-from .page_object_runtime_workflow import build_page_object_runtime_graph
-from .page_object_tracing import (
+from .journey_planning.workflow import build_journey_planning_graph
+from .shared.llm import BedrockConverseTextGenerator
+from .page_capture.workflow import build_page_capture_graph
+from .page_object_factory.workflow import build_page_object_factory_graph
+from .page_object_runtime.workflow import build_page_object_runtime_graph
+from .page_object_generation.tracing import (
     resolve_trace_log_path,
 )
-from .page_object_workflow import build_page_object_graph
-from .test_authoring_workflow import build_test_authoring_graph
-from .test_execution_runner import PytestCommandRunner
-from .test_execution_workflow import build_test_execution_graph
-from .workflow_tracing import serialize_trace_value, write_trace_log
+from .page_object_generation.workflow import build_page_object_graph
+from .test_authoring.workflow import build_test_authoring_graph
+from .test_execution.runner import PytestCommandRunner
+from .test_execution.workflow import build_test_execution_graph
+from .shared.workflow_tracing import serialize_trace_value, write_trace_log
 
 
 def parse_args() -> argparse.Namespace:
@@ -94,7 +94,7 @@ def main() -> None:
         return
 
     if args.capture_run:
-        from .page_capture_browser import SeleniumChromeBrowserSession
+        from .page_capture.browser import SeleniumChromeBrowserSession
 
         browser_session = SeleniumChromeBrowserSession()
         try:
@@ -146,7 +146,7 @@ def main() -> None:
         return
 
     if args.verify_page_objects_run:
-        from .page_capture_browser import SeleniumChromeBrowserSession
+        from .page_capture.browser import SeleniumChromeBrowserSession
 
         settings = load_settings()
         text_generator = BedrockConverseTextGenerator(settings)

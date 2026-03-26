@@ -3,12 +3,12 @@ from __future__ import annotations
 import unittest
 
 from bedrock_langgraph_agent.config import PROJECT_ROOT
-from bedrock_langgraph_agent.page_object_policy import (
+from bedrock_langgraph_agent.page_object_generation.policy import (
     DEFAULT_PAGE_OBJECT_POLICY,
     build_page_spec,
 )
-from bedrock_langgraph_agent.page_object_verifier import verify_page_object
-from bedrock_langgraph_agent.page_object_workflow import build_page_object_graph
+from bedrock_langgraph_agent.page_object_generation.verifier import verify_page_object
+from bedrock_langgraph_agent.page_object_generation.workflow import build_page_object_graph
 
 
 EXAMPLE_HTML_PATH = PROJECT_ROOT / "examples" / "checkout_form.html"

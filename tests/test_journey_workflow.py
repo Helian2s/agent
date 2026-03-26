@@ -6,8 +6,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bedrock_langgraph_agent.journey_workflow import build_journey_planning_graph
-from bedrock_langgraph_agent.run_artifacts import RunDirectories
+from bedrock_langgraph_agent.journey_planning.workflow import build_journey_planning_graph
+from bedrock_langgraph_agent.shared.run_artifacts import RunDirectories
 
 
 def _write_ndjson(path: Path, events: list[dict[str, object]]) -> None:

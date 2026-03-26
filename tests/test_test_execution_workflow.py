@@ -4,9 +4,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from bedrock_langgraph_agent.test_authoring_workflow import build_test_authoring_graph
-from bedrock_langgraph_agent.test_execution_runner import TestRunResult
-from bedrock_langgraph_agent.test_execution_workflow import build_test_execution_graph
+from bedrock_langgraph_agent.test_authoring.workflow import build_test_authoring_graph
+from bedrock_langgraph_agent.test_execution.runner import TestRunResult
+from bedrock_langgraph_agent.test_execution.workflow import build_test_execution_graph
 
 from test_test_authoring_workflow import _create_verified_run
 

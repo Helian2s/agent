@@ -5,7 +5,7 @@ from typing import TypedDict
 from langgraph.graph import END, START, StateGraph
 
 from .config import AppSettings
-from .llm import BedrockConverseTextGenerator
+from .shared.llm import BedrockConverseTextGenerator
 
 
 class AgentState(TypedDict, total=False):

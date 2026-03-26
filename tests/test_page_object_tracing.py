@@ -6,7 +6,7 @@ import json
 import tempfile
 import unittest
 
-from bedrock_langgraph_agent.page_object_tracing import (
+from bedrock_langgraph_agent.page_object_generation.tracing import (
     DEFAULT_TRACE_DIR,
     resolve_trace_log_path,
     write_trace_log,
